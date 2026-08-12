@@ -8,3 +8,4 @@ def filter_by_state(list_dicts: List[Dict[str, Any]], state: str = "EXECUTED") -
     :return: новый список словарей с указанным состоянием
     """
     return [item for item in list_dicts if item.get("state") == state]
+# test comment
