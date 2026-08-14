@@ -1,2 +1,24 @@
 __pycache__/
 *.pyc
+# IDE
+# IDE
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS junk
+.DS_Store
+Thumbs.db
