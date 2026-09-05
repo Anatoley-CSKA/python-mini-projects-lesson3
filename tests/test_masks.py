@@ -1,5 +1,5 @@
 import pytest
-from src.masks import get_mask_card_number
+from src.masks import get_mask_card_number, get_mask_account
 
 def test_get_mask_card_number_standard():
     """Тестирование правильности маскирования номера карты."""
@@ -18,7 +18,7 @@ def test_get_mask_card_number_max_length():
 def test_get_mask_card_number_non_standard_length():
     """Нестандартная длина номера карты (не 16 цифр)."""
     with pytest.raises(ValueError, match="Card number must contain 16 digits"):
-        get_mask_card_number("1234567890")  # 10 цифр
+        get_mask_card_number("1234567890")
 
 def test_get_mask_card_number_empty():
     """Проверка обработки пустой строки."""
@@ -27,7 +27,33 @@ def test_get_mask_card_number_empty():
 
 def test_get_mask_card_number_with_spaces():
     """Проверка обработки номера с пробелами."""
-    # Если функция должна обрабатывать пробелы, ожидаем корректный результат
-    # В противном случае выбрасываем исключение
     with pytest.raises(ValueError, match="Card number must contain 16 digits"):
         get_mask_card_number("7000 7922 8960 6361")
+
+def test_get_mask_account_standard():
+    """Тестирование правильности маскирования номера счета."""
+    assert get_mask_account("73654108430135874305") == "**4305"
+    assert get_mask_account("1234567890") == "**7890"
+
+def test_get_mask_account_min_length():
+    """Граничный случай: минимальная длина (4 цифры)."""
+    assert get_mask_account("1234") == "**1234"
+
+def test_get_mask_account_long_length():
+    """Длинный номер счета (20+ цифр)."""
+    assert get_mask_account("123456789012345678901234") == "**1234"
+
+def test_get_mask_account_too_short():
+    """Номер счета короче 4 цифр — должен вызывать ошибку."""
+    with pytest.raises(ValueError, match="Account number must contain at least 4 digits"):
+        get_mask_account("123")
+
+def test_get_mask_account_empty():
+    """Пустая строка — должна вызывать ошибку."""
+    with pytest.raises(ValueError, match="Account number must contain at least 4 digits"):
+        get_mask_account("")
+
+def test_get_mask_account_with_spaces():
+    """Номер счета с пробелами — должен вызывать ошибку."""
+    with pytest.raises(ValueError, match="Account number must contain at least 4 digits"):
+        get_mask_account("7365 4108 4301 3587 4305")
