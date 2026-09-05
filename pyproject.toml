@@ -1,20 +1,16 @@
-[project]
+[tool.poetry]
 name = "python-mini-projects-lesson3"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Your Name",email = "you@example.com"}
-]
-requires-python = ">=3.11"
-dependencies = [
-]
+authors = ["Your Name <you@example.com>"]
+package-mode = false
 
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.dev-dependencies]
+pytest = "^9.1.1"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[dependency-groups]
-dev = [
-    "pytest (>=9.1.1,<10.0.0)"
-]
