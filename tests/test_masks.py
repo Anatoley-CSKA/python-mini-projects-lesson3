@@ -57,3 +57,36 @@ def test_get_mask_account_with_spaces():
     """Номер счета с пробелами — должен вызывать ошибку."""
     with pytest.raises(ValueError, match="Account number must contain at least 4 digits"):
         get_mask_account("7365 4108 4301 3587 4305")
+
+def test_get_mask_card_number_empty_string():
+    """Тестирование обработки пустой строки."""
+    with pytest.raises(ValueError, match="Card number must contain 16 digits"):
+        get_mask_card_number("")
+
+
+def test_get_mask_card_number_non_digit():
+    """Тестирование обработки номера с нецифровыми символами."""
+    with pytest.raises(ValueError, match="Card number must contain 16 digits"):
+        get_mask_card_number("1234abcd5678efgh")
+
+
+def test_get_mask_card_number_too_short():
+    """Тестирование обработки слишком короткого номера."""
+    with pytest.raises(ValueError, match="Card number must contain 16 digits"):
+        get_mask_card_number("1234567890")
+
+
+def test_get_mask_card_number_too_long():
+    """Тестирование обработки слишком длинного номера."""
+    with pytest.raises(ValueError, match="Card number must contain 16 digits"):
+        get_mask_card_number("12345678901234567890")
+
+def test_get_mask_card_number_with_spaces():
+    """Проверка обработки номера с пробелами."""
+    # Функция удаляет пробелы и маскирует номер
+    assert get_mask_card_number("7000 7922 8960 6361") == "7000 79** **** 6361"
+
+def test_get_mask_account_with_spaces():
+    """Проверка обработки номера счета с пробелами."""
+    # Функция удаляет пробелы и маскирует номер
+    assert get_mask_account("7365 4108 4301 3587 4305") == "**4305"
