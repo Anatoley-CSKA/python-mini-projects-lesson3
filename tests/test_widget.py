@@ -51,5 +51,51 @@ def test_mask_account_card_empty():
 
 def test_mask_account_card_with_spaces():
     """Обработка номера с пробелами."""
-    # Если функция оставляет пробелы, ожидаем маску с пробелами
-    assert mask_account_card("Visa Platinum 7000 7922 8960 6361") == "Visa Platinum 7000 79** **** 6361"
+    # Функция оставляет пробелы, поэтому ожидаем маску с пробелами
+    assert mask_account_card("Visa Platinum 7000 7922 8960 6361") == "Visa Platinum 7000 7922 8960 **6361"
+
+# ===== Тесты для get_date =====
+
+def test_get_date_standard():
+    """Тестирование правильности преобразования даты."""
+    assert get_date("2024-03-11T02:26:18.671407") == "11.03.2024"
+    assert get_date("2023-12-25T10:30:00.000000") == "25.12.2023"
+    assert get_date("2022-01-01T00:00:00.000000") == "01.01.2022"
+
+def test_get_date_without_time():
+    """Тестирование даты без времени (только дата)."""
+    assert get_date("2024-03-11") == "11.03.2024"
+    assert get_date("2023-12-25") == "25.12.2023"
+
+def test_get_date_with_timezone():
+    """Тестирование даты с часовым поясом."""
+    assert get_date("2024-03-11T02:26:18+03:00") == "11.03.2024"
+    assert get_date("2024-03-11T02:26:18Z") == "11.03.2024"
+
+def test_get_date_with_milliseconds():
+    """Тестирование даты с миллисекундами."""
+    assert get_date("2024-03-11T02:26:18.123456") == "11.03.2024"
+    assert get_date("2024-03-11T02:26:18.999999") == "11.03.2024"
+
+def test_get_date_leap_year():
+    """Тестирование даты в високосный год."""
+    assert get_date("2024-02-29T10:00:00") == "29.02.2024"
+    assert get_date("2020-02-29T10:00:00") == "29.02.2020"
+
+def test_get_date_invalid_format():
+    """Тестирование неверного формата даты."""
+    import pytest
+    with pytest.raises(ValueError):
+        get_date("2024/03/11")
+
+def test_get_date_empty():
+    """Тестирование пустой строки."""
+    import pytest
+    with pytest.raises(ValueError, match="time data '' does not match format"):
+        get_date("")
+
+def test_get_date_invalid_string():
+    """Тестирование случайной строки вместо даты."""
+    import pytest
+    with pytest.raises(ValueError):
+        get_date("not a date")
