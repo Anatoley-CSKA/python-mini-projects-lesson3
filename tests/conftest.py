@@ -1,5 +1,77 @@
 import pytest
 
+# ===== Фикстуры для masks =====
+
+@pytest.fixture
+def valid_card_number():
+    """Фикстура: корректный номер карты."""
+    return "7000792289606361"
+
+
+@pytest.fixture
+def valid_account_number():
+    """Фикстура: корректный номер счета."""
+    return "73654108430135874305"
+
+
+@pytest.fixture
+def card_number_with_spaces():
+    """Фикстура: номер карты с пробелами."""
+    return "7000 7922 8960 6361"
+
+
+@pytest.fixture
+def account_number_with_spaces():
+    """Фикстура: номер счета с пробелами."""
+    return "7365 4108 4301 3587 4305"
+
+
+@pytest.fixture
+def invalid_card_number():
+    """Фикстура: некорректный номер карты (короткий)."""
+    return "1234567890"
+
+
+@pytest.fixture
+def invalid_account_number():
+    """Фикстура: некорректный номер счета (короткий)."""
+    return "123"
+
+
+# ===== Фикстуры для widget =====
+
+@pytest.fixture
+def visa_platinum():
+    """Фикстура: данные карты Visa Platinum."""
+    return ("Visa Platinum 7000792289606361", "Visa Platinum 7000 79** **** 6361")
+
+
+@pytest.fixture
+def maestro():
+    """Фикстура: данные карты Maestro."""
+    return ("Maestro 1596837868705199", "Maestro 1596 83** **** 5199")
+
+
+@pytest.fixture
+def mastercard():
+    """Фикстура: данные карты MasterCard."""
+    return ("MasterCard 7158300734726758", "MasterCard 7158 30** **** 6758")
+
+
+@pytest.fixture
+def account():
+    """Фикстура: данные счета."""
+    return ("Счет 73654108430135874305", "Счет **4305")
+
+
+@pytest.fixture
+def invalid_widget_data():
+    """Фикстура: некорректные данные для widget."""
+    return "InvalidInputWithoutSpace"
+
+
+# ===== Фикстуры для processing =====
+
 @pytest.fixture
 def sample_data_mixed_states():
     """Фикстура: список словарей с разными статусами."""
@@ -37,9 +109,9 @@ def sample_data_missing_key():
     """Фикстура: список словарей, где в некоторых отсутствует ключ state."""
     return [
         {"id": 1, "state": "EXECUTED", "date": "2021-01-01"},
-        {"id": 2, "date": "2020-12-31"},  # нет state
+        {"id": 2, "date": "2020-12-31"},
         {"id": 3, "state": "EXECUTED", "date": "2021-01-02"},
-        {"id": 4, "date": "2021-01-03"},  # нет state
+        {"id": 4, "date": "2021-01-03"},
     ]
 
 
@@ -77,7 +149,7 @@ def sample_data_invalid_dates():
         {"id": 1, "state": "EXECUTED", "date": "2021-01-01"},
         {"id": 2, "state": "CANCELED", "date": "invalid-date"},
         {"id": 3, "state": "EXECUTED", "date": "2020-12-31"},
-        {"id": 4, "state": "PENDING", "date": "2021/01/03"},  # нестандартный формат
+        {"id": 4, "state": "PENDING", "date": "2021/01/03"},
     ]
 
 
@@ -86,6 +158,6 @@ def sample_data_mixed_types():
     """Фикстура: список словарей со смешанными типами данных в ключе date."""
     return [
         {"id": 1, "state": "EXECUTED", "date": "2021-01-01"},
-        {"id": 2, "state": "CANCELED", "date": 123},  # число вместо строки
+        {"id": 2, "state": "CANCELED", "date": 123},
         {"id": 3, "state": "EXECUTED", "date": "2020-12-31"},
     ]
