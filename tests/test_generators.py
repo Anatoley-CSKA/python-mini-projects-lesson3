@@ -1,5 +1,5 @@
 import pytest
-from src.generators import filter_by_currency, transaction_descriptions
+from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
 
 
 @pytest.fixture
@@ -86,3 +86,34 @@ def test_transaction_descriptions_missing_key():
     assert next(descriptions) == "Перевод организации"
     assert next(descriptions) == ""
     assert next(descriptions) == "Перевод с карты на карту"
+
+
+def test_card_number_generator_basic():
+    cards = list(card_number_generator(1, 5))
+    assert cards == [
+        "0000 0000 0000 0001",
+        "0000 0000 0000 0002",
+        "0000 0000 0000 0003",
+        "0000 0000 0000 0004",
+        "0000 0000 0000 0005",
+    ]
+
+
+def test_card_number_generator_single():
+    cards = list(card_number_generator(1, 1))
+    assert cards == ["0000 0000 0000 0001"]
+
+
+def test_card_number_generator_max():
+    cards = list(card_number_generator(9999999999999999, 9999999999999999))
+    assert cards == ["9999 9999 9999 9999"]
+
+
+def test_card_number_generator_empty_range():
+    cards = list(card_number_generator(5, 4))
+    assert cards == []
+
+
+def test_card_number_generator_format():
+    cards = list(card_number_generator(1234567890123456, 1234567890123456))
+    assert cards == ["1234 5678 9012 3456"]
