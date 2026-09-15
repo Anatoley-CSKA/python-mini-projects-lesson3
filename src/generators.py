@@ -5,12 +5,7 @@ def filter_by_currency(
     transactions: List[Dict[str, Any]],
     currency: str,
 ) -> Iterator[Dict[str, Any]]:
-    """Фильтрует транзакции по коду валюты.
-
-    :param transactions: список словарей с транзакциями
-    :param currency: код валюты (например, "USD")
-    :return: итератор с транзакциями, у которых валюта совпадает
-    """
+    """Фильтрует транзакции по коду валюты."""
     for transaction in transactions:
         code = (
             transaction.get("operationAmount", {})
@@ -21,26 +16,17 @@ def filter_by_currency(
             yield transaction
 
 
-def transaction_descriptions(transactions):
-    """Возвращает описания транзакций по очереди.
-
-    :param transactions: список словарей с транзакциями
-    :return: итератор с описаниями транзакций
-    """
+def transaction_descriptions(
+    transactions: List[Dict[str, Any]],
+) -> Iterator[str]:
+    """Возвращает описания транзакций по очереди."""
     for transaction in transactions:
         yield transaction.get("description", "")
 
 
-def card_number_generator(start: int, end: int):
-    """Генерирует номера банковских карт в формате XXXX XXXX XXXX XXXX.
-
-    :param start: начальное значение диапазона (включительно)
-    :param end: конечное значение диапазона (включительно)
-    :yield: строка с номером карты
-    """
+def card_number_generator(start: int, end: int) -> Iterator[str]:
+    """Генерирует номера банковских карт в формате XXXX XXXX XXXX XXXX."""
     for number in range(start, end + 1):
         card_str = f"{number:016d}"
-        formatted = " ".join(
-            card_str[i:i + 4] for i in range(0, 16, 4)
-        )
+        formatted = " ".join(card_str[i : i + 4] for i in range(0, 16, 4))
         yield formatted
