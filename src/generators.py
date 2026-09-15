@@ -19,3 +19,13 @@ def filter_by_currency(
         )
         if code == currency:
             yield transaction
+
+
+def transaction_descriptions(transactions):
+    """Возвращает описания транзакций по очереди.
+
+    :param transactions: список словарей с транзакциями
+    :return: итератор с описаниями транзакций
+    """
+    for transaction in transactions:
+        yield transaction.get("description", "")

@@ -1,5 +1,5 @@
 import pytest
-from src.generators import filter_by_currency
+from src.generators import filter_by_currency, transaction_descriptions
 
 
 @pytest.fixture
@@ -53,3 +53,36 @@ def test_filter_by_currency_empty(sample_transactions):
 def test_filter_by_currency_empty_list():
     result = list(filter_by_currency([], "USD"))
     assert result == []
+
+
+def test_transaction_descriptions():
+    transactions = [
+        {"description": "Перевод организации"},
+        {"description": "Перевод со счета на счет"},
+        {"description": "Перевод со счета на счет"},
+        {"description": "Перевод с карты на карту"},
+        {"description": "Перевод организации"},
+    ]
+    descriptions = transaction_descriptions(transactions)
+    assert next(descriptions) == "Перевод организации"
+    assert next(descriptions) == "Перевод со счета на счет"
+    assert next(descriptions) == "Перевод со счета на счет"
+    assert next(descriptions) == "Перевод с карты на карту"
+    assert next(descriptions) == "Перевод организации"
+
+
+def test_transaction_descriptions_empty():
+    descriptions = transaction_descriptions([])
+    assert list(descriptions) == []
+
+
+def test_transaction_descriptions_missing_key():
+    transactions = [
+        {"description": "Перевод организации"},
+        {},
+        {"description": "Перевод с карты на карту"},
+    ]
+    descriptions = transaction_descriptions(transactions)
+    assert next(descriptions) == "Перевод организации"
+    assert next(descriptions) == ""
+    assert next(descriptions) == "Перевод с карты на карту"
