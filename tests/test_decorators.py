@@ -1,104 +1,186 @@
-"""Тесты для модуля decorators."""
+"""Тесты для декоратора log из модуля decorators."""
 import os
 import tempfile
+
 import pytest
+
 from src.decorators import log
 
 
 # ============================================================
-# Тесты для логирования в консоль
+# Тесты для логирования в консоль (capsys)
 # ============================================================
 
 def test_log_success_console(capsys):
-    """Успешный вызов — вывод в консоль."""
+    """Успешное выполнение — вывод в консоль."""
     @log()
-    def add(a, b):
-        return a + b
+    def my_function(x, y):
+        return x + y
 
-    result = add(2, 3)
+    result = my_function(1, 2)
     captured = capsys.readouterr()
-    assert result == 5
-    assert "add(2, 3) -> 5" in captured.out
+
+    assert result == 3
+    assert captured.out == "my_function ok\n"
+
+
+def test_log_success_console_no_args(capsys):
+    """Успешное выполнение без аргументов."""
+    @log()
+    def get_value():
+        return 42
+
+    result = get_value()
+    captured = capsys.readouterr()
+
+    assert result == 42
+    assert captured.out == "get_value ok\n"
 
 
 def test_log_error_console(capsys):
-    """Вызов с ошибкой — вывод в консоль."""
+    """Ошибка — вывод в консоль."""
     @log()
-    def divide(a, b):
+    def my_function(x, y):
+        return x / y
+
+    with pytest.raises(ZeroDivisionError):
+        my_function(1, 0)
+
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "my_function error: ZeroDivisionError. "
+        "Inputs: (1, 0), {}\n"
+    )
+
+
+def test_log_error_with_kwargs(capsys):
+    """Ошибка с именованными аргументами."""
+    @log()
+    def divide(a, b=1):
         return a / b
 
     with pytest.raises(ZeroDivisionError):
-        divide(10, 0)
+        divide(10, b=0)
 
     captured = capsys.readouterr()
-    assert "divide(10, 0) -> ERROR: ZeroDivisionError" in captured.out
+    assert captured.out == (
+        "divide error: ZeroDivisionError. "
+        "Inputs: (10,), {'b': 0}\n"
+    )
 
 
-def test_log_with_kwargs(capsys):
-    """Вызов с именованными аргументами."""
+def test_log_custom_error(capsys):
+    """Пользовательская ошибка."""
     @log()
-    def greet(name, greeting="Hello"):
-        return f"{greeting}, {name}!"
+    def fail():
+        raise ValueError("Что-то пошло не так")
 
-    result = greet("Alice", greeting="Hi")
+    with pytest.raises(ValueError):
+        fail()
+
     captured = capsys.readouterr()
-    assert result == "Hi, Alice!"
-    assert "greet('Alice', greeting='Hi')" in captured.out
+    assert captured.out == (
+        "fail error: ValueError. Inputs: (), {}\n"
+    )
+
+
+def test_log_type_error(capsys):
+    """Ошибка типа (TypeError)."""
+    @log()
+    def add_numbers(a, b):
+        return a + b
+
+    with pytest.raises(TypeError):
+        add_numbers("1", 2)
+
+    captured = capsys.readouterr()
+    assert "add_numbers error: TypeError." in captured.out
 
 
 # ============================================================
 # Тесты для логирования в файл
 # ============================================================
 
-def test_log_to_file():
-    """Логирование записывается в файл."""
-    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
+def test_log_success_to_file():
+    """Успешное выполнение — запись в файл."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", delete=False, suffix=".txt"
+    ) as f:
         filename = f.name
 
     try:
         @log(filename=filename)
-        def multiply(a, b):
-            return a * b
+        def my_function(x, y):
+            return x + y
 
-        multiply(3, 4)
-        multiply(5, 6)
+        result = my_function(1, 2)
 
         with open(filename, encoding="utf-8") as f:
             content = f.read()
 
-        assert "multiply(3, 4) -> 12" in content
-        assert "multiply(5, 6) -> 30" in content
+        assert result == 3
+        assert content == "my_function ok\n"
     finally:
         os.unlink(filename)
 
 
-def test_log_to_file_error():
-    """Ошибка записывается в файл."""
-    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
+def test_log_error_to_file():
+    """Ошибка — запись в файл."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", delete=False, suffix=".txt"
+    ) as f:
         filename = f.name
 
     try:
         @log(filename=filename)
-        def divide(a, b):
-            return a / b
+        def my_function(x, y):
+            return x / y
 
         with pytest.raises(ZeroDivisionError):
-            divide(10, 0)
+            my_function(1, 0)
 
         with open(filename, encoding="utf-8") as f:
             content = f.read()
 
-        assert "divide(10, 0) -> ERROR: ZeroDivisionError" in content
+        assert content == (
+            "my_function error: ZeroDivisionError. "
+            "Inputs: (1, 0), {}\n"
+        )
+    finally:
+        os.unlink(filename)
+
+
+def test_log_appends_to_file():
+    """Логи дописываются в файл (не перезаписываются)."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", delete=False, suffix=".txt"
+    ) as f:
+        filename = f.name
+
+    try:
+        @log(filename=filename)
+        def my_function(x):
+            return x * 2
+
+        my_function(1)
+        my_function(2)
+        my_function(3)
+
+        with open(filename, encoding="utf-8") as f:
+            lines = f.readlines()
+
+        assert len(lines) == 3
+        assert all(line == "my_function ok\n" for line in lines)
     finally:
         os.unlink(filename)
 
 
 # ============================================================
-# Тесты для сохранения метаданных
+# Тесты для метаданных функции
 # ============================================================
 
 def test_log_preserves_name():
-    """Декоратор сохраняет имя функции."""
+    """Декоратор сохраняет __name__ функции."""
     @log()
     def my_function():
         return "test"
@@ -107,36 +189,34 @@ def test_log_preserves_name():
 
 
 def test_log_preserves_docstring():
-    """Декоратор сохраняет docstring."""
+    """Декоратор сохраняет __doc__ функции."""
     @log()
     def my_function():
-        """Документация."""
+        """Документация функции."""
         return "test"
 
-    assert my_function.__doc__ == "Документация."
+    assert my_function.__doc__ == "Документация функции."
 
 
 # ============================================================
-# Тесты для исключений
+# Тесты для проброса исключений
 # ============================================================
 
 def test_log_reraises_exception():
-    """Исключение пробрасывается дальше."""
+    """Исключение пробрасывается наружу."""
     @log()
     def fail():
-        raise ValueError("Ошибка")
+        raise RuntimeError("Ошибка")
 
-    with pytest.raises(ValueError, match="Ошибка"):
+    with pytest.raises(RuntimeError, match="Ошибка"):
         fail()
 
 
-def test_log_no_args(capsys):
-    """Функция без аргументов."""
+def test_log_exception_type_preserved():
+    """Тип исключения не меняется."""
     @log()
-    def get_value():
-        return 42
+    def fail():
+        raise KeyError("missing")
 
-    result = get_value()
-    captured = capsys.readouterr()
-    assert result == 42
-    assert "get_value() -> 42" in captured.out
+    with pytest.raises(KeyError):
+        fail()
