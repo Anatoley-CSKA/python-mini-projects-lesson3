@@ -6,26 +6,22 @@ from typing import Any, Callable
 def log(filename: str = "") -> Callable:
     """Декоратор для логирования вызовов функций.
 
-    Записывает имя функции, аргументы и результат или ошибку
-    в файл (если указан filename) или выводит в консоль.
+    Логирует результат выполнения функции или ошибку. Записывает
+    логи в файл, если указан filename, иначе выводит в консоль.
 
-    :param filename: путь к файлу для логов (если пусто — вывод в консоль)
+    :param filename: путь к файлу для логов (по умолчанию — консоль)
     """
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            args_str = ", ".join(repr(a) for a in args)
-            kwargs_str = ", ".join(f"{k}={v!r}" for k, v in kwargs.items())
-            params = ", ".join(filter(None, [args_str, kwargs_str]))
-
             try:
                 result = func(*args, **kwargs)
-                message = f"{func.__name__}({params}) -> {result!r}\n"
+                message = f"{func.__name__} ok\n"
             except Exception as e:
                 message = (
-                    f"{func.__name__}({params}) -> ERROR: "
-                    f"{type(e).__name__}: {e}\n"
+                    f"{func.__name__} error: {type(e).__name__}. "
+                    f"Inputs: {args}, {kwargs}\n"
                 )
                 _write_log(filename, message)
                 raise
