@@ -1,11 +1,13 @@
 from src.masks import get_mask_card_number, get_mask_account
 
+
 def mask_account_card(info: str) -> str:
-    words = info.split()
-    if len(words) < 2:
+    """Принимает строку с типом и номером карты/счета, возвращает маску."""
+    parts = info.rsplit(" ", 1)
+    if len(parts) != 2:
         raise ValueError("Неверный формат строки: должно быть 'тип номер'")
-    type_part = ' '.join(words[:-1])
-    number = words[-1]
+    type_part, number = parts[0], parts[1]
+    number = number.replace(" ", "")
     if number.isdigit():
         if len(number) == 16:
             masked = get_mask_card_number(number)
@@ -17,8 +19,11 @@ def mask_account_card(info: str) -> str:
     else:
         raise ValueError("Номер должен содержать только цифры")
 
+
 def get_date(date_str: str) -> str:
+    """Принимает строку с датой в формате ISO и возвращает 'ДД.ММ.ГГГГ'."""
     from datetime import datetime
+
     date_part = date_str.split("T")[0]
     dt = datetime.strptime(date_part, "%Y-%m-%d")
     return dt.strftime("%d.%m.%Y")
