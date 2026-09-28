@@ -102,3 +102,83 @@ for _ in range(5):
 from src.generators import card_number_generator
 for card_number in card_number_generator(1, 5):
     print(card_number)
+
+---
+
+## 🎯 Модуль `decorators`
+
+Модуль содержит декораторы для логирования вызовов функций.
+
+### Декоратор `log`
+
+Декоратор `log` автоматически логирует начало и конец выполнения функции, а также её результат или возникшую ошибку.
+
+**Параметры:**
+
+- `filename` (необязательный) — путь к файлу для логов. Если не указан, логи выводятся в консоль.
+
+**Формат логов:**
+
+- **Успешное выполнение:** `<имя_функции> ok`
+- **Ошибка:** `<имя_функции> error: <ТипОшибки>. Inputs: <args>, <kwargs>`
+
+### Примеры использования
+
+#### Пример 1 — логирование в файл
+
+```python
+from src.decorators import log
+
+
+@log(filename="mylog.txt")
+def my_function(x, y):
+    return x + y
+
+
+my_function(1, 2)
+
+
+---
+
+## 🎯 Модуль decorators
+
+Модуль содержит декораторы для логирования вызовов функций.
+
+### Декоратор log
+
+Декоратор автоматически логирует результат выполнения функции или возникшую ошибку.
+
+**Параметры:**
+- filename (необязательный) — путь к файлу для логов. Если не указан, логи выводятся в консоль.
+
+**Формат логов:**
+- Успешное выполнение: <имя_функции> ok
+- Ошибка: <имя_функции> error: <ТипОшибки>. Inputs: <args>, <kwargs>
+
+### Пример 1 — логирование в файл
+
+from src.decorators import log
+
+@log(filename="mylog.txt")
+def my_function(x, y):
+    return x + y
+
+my_function(1, 2)
+# В mylog.txt: my_function ok
+
+### Пример 2 — логирование в консоль
+
+@log()
+def divide(x, y):
+    return x / y
+
+try:
+    divide(10, 0)
+except ZeroDivisionError:
+    pass
+# Вывод: divide error: ZeroDivisionError. Inputs: (10, 0), {}
+
+### Тестирование
+
+poetry run pytest tests/test_decorators.py -v
+# 13 тестов, покрытие 100%
